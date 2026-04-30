@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { auth } from '../services/firebase';
-import { LogOut, Plus, Receipt, Search, Calendar, Filter, X } from 'lucide-react';
+import { Plus, Receipt, Search, Calendar, Filter, X } from 'lucide-react';
 import { Expense, subscribeToExpenses, deleteExpense, CATEGORIES } from '../services/expenseService';
 import ExpenseModal from '../components/ExpenseModal';
 import { format, isSameWeek, isSameMonth, isSameYear, parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
-import { signOut } from 'firebase/auth';
 import { motion, AnimatePresence } from 'motion/react';
 import Tilt from 'react-parallax-tilt';
 
@@ -118,17 +116,6 @@ export default function Dashboard() {
             </div>
             ExpenseFlow
           </motion.div>
-          <motion.button 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => signOut(auth)}
-            className="text-slate-300 hover:text-white transition-colors p-2 bg-white/5 hover:bg-white/10 rounded-full"
-            title="Log out"
-          >
-            <LogOut className="w-5 h-5" />
-          </motion.button>
         </div>
       </header>
 

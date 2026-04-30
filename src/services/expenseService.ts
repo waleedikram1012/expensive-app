@@ -1,5 +1,5 @@
 import { collection, doc, setDoc, updateDoc, deleteDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
-import { db, auth } from './firebase';
+import { db } from './firebase';
 import { handleFirestoreError, OperationType } from '../lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -47,7 +47,7 @@ export const addExpense = async (userId: string, data: Omit<Expense, 'userId' | 
       timestamp: serverTimestamp(),
     });
   } catch (error) {
-    handleFirestoreError(error, OperationType.CREATE, path, auth);
+    handleFirestoreError(error, OperationType.CREATE, path);
   }
 };
 
@@ -65,7 +65,7 @@ export const updateExpense = async (userId: string, expenseId: string, data: Par
 
     await updateDoc(expenseRef, toUpdate);
   } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, path, auth);
+    handleFirestoreError(error, OperationType.UPDATE, path);
   }
 };
 
@@ -75,7 +75,7 @@ export const deleteExpense = async (userId: string, expenseId: string) => {
   try {
     await deleteDoc(expenseRef);
   } catch (error) {
-    handleFirestoreError(error, OperationType.DELETE, path, auth);
+    handleFirestoreError(error, OperationType.DELETE, path);
   }
 };
 
@@ -96,7 +96,7 @@ export const subscribeToExpenses = (userId: string, onData: (expenses: Expense[]
     });
     onData(expenses);
   }, (error) => {
-    handleFirestoreError(error, OperationType.GET, path, auth);
+    handleFirestoreError(error, OperationType.GET, path);
   });
 
   return unsubscribe;
