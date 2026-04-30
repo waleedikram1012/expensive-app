@@ -1,0 +1,6 @@
+{
+  "name": "Daily Expense Tracker",
+  "description": "A daily expense tracker with English/Urdu support, category management, and receipt uploads.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

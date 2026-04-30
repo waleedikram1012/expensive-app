@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "expense": {
+      "title": "Expense",
+      "description": "A single expense entry for a user",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who owns this expense"
+        },
+        "itemName": {
+          "type": "string",
+          "description": "The description of the item bought"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount spent"
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the expense"
+        },
+        "emojiOrImageUrl": {
+          "type": "string",
+          "description": "Optional emoji or image URL representing the expense"
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "The server timestamp when the expense was created"
+        },
+        "languageUsed": {
+          "type": "string",
+          "description": "Language used for the item name"
+        }
+      },
+      "required": ["userId", "itemName", "amount", "category", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}/expenses/{expenseId}": {
+      "schema": {
+        "$ref": "#/entities/expense"
+      },
+      "description": "Expenses belonging to a specific user"
+    }
+  }
+}

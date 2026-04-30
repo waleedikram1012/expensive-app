@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 3. Primitive Definition
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // 2. Validation Blueprints
+    function isValidExpense(data, userId) {
+      return data.userId == userId &&
+             data.itemName is string && data.itemName.size() > 0 && data.itemName.size() <= 200 &&
+             data.amount is number && data.amount > 0 &&
+             data.category is string && data.category.size() > 0 && data.category.size() <= 50 &&
+             data.timestamp is timestamp &&
+             (data.get('emojiOrImageUrl', '') is string && data.get('emojiOrImageUrl', '').size() <= 1000) &&
+             (data.get('languageUsed', '') is string && data.get('languageUsed', '').size() <= 10);
+    }
+
+    // Validation for create
+    function isCreateValid(data, userId) {
+      return data.keys().hasAll(['userId', 'itemName', 'amount', 'category', 'timestamp']) &&
+             data.keys().size() >= 5 && data.keys().size() <= 7 &&
+             isValidExpense(data, userId) &&
+             data.timestamp == request.time;
+    }
+
+    // Validation for update
+    function isUpdateValid(data, userId) {
+      return isValidExpense(data, userId);
+    }
+
+    match /users/{userId}/expenses/{expenseId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+
+      allow list: if isSignedIn() && request.auth.uid == userId;
+      
+      allow create: if isSignedIn() &&
+                    request.auth.uid == userId &&
+                    isValidId(userId) &&
+                    isValidId(expenseId) &&
+                    isCreateValid(incoming(), userId);
+                    
+      allow update: if (
+        isSignedIn() &&
+        request.auth.uid == userId &&
+        isValidId(userId) &&
+        isValidId(expenseId) &&
+        isUpdateValid(incoming(), userId) &&
+        (
+          // Action: Edit
+          incoming().diff(existing()).affectedKeys().hasOnly(['itemName', 'amount', 'category', 'emojiOrImageUrl', 'languageUsed', 'updatedAt'])
+        )
+      );
+
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}
